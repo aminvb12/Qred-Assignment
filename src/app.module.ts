@@ -21,7 +21,7 @@ import { HealthModule } from './modules/health/health.module';
         database: config.get<string>('DB_NAME', 'nestdb'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         migrations: [__dirname + '/migrations/*{.ts,.js}'],
-        synchronize: config.get<string>('NODE_ENV') !== 'production',
+        synchronize: false,
         logging: config.get<string>('NODE_ENV') === 'development',
       }),
     }),
