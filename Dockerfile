@@ -21,7 +21,7 @@ COPY --from=deps  /app/node_modules ./node_modules
 COPY package*.json ./
 
 EXPOSE 3000
-CMD ["node", "dist/main"]
+CMD ["sh", "-c", "node node_modules/typeorm/cli.js migration:run -d dist/config/data-source.js && node dist/main"]
 
 # ── Stage 4: development (default for docker-compose) ─────────────────────────
 FROM node:20-alpine AS development
@@ -29,7 +29,7 @@ WORKDIR /app
 ENV NODE_ENV=development
 
 COPY package*.json ./
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 COPY . .
 
