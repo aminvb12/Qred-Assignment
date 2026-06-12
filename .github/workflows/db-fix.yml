@@ -1,0 +1,29 @@
+name: DB Fix
+
+on:
+  workflow_dispatch:
+    inputs:
+      sql:
+        description: 'SQL to run against RDS'
+        required: true
+        default: "INSERT INTO migrations (timestamp, name) VALUES (1781276271640, 'InitSchema1781276271640') ON CONFLICT DO NOTHING"
+
+jobs:
+  run-sql:
+    name: Run SQL on RDS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install psql
+        run: sudo apt-get install -y postgresql-client
+
+      - name: Run SQL
+        env:
+          PGHOST: ${{ secrets.DB_HOST }}
+          PGUSER: ${{ secrets.DB_USERNAME }}
+          PGPASSWORD: ${{ secrets.DB_PASSWORD }}
+          PGDATABASE: ${{ secrets.DB_NAME }}
+          PGPORT: 5432
+          PGSSLMODE: require
+        run: |
+          psql -c "${{ github.event.inputs.sql }}"
