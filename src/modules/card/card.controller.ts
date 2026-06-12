@@ -1,5 +1,5 @@
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { CardService } from './card.service';
 import { CreateCardDto } from './dto/create-card.dto';
 import { UpdateCardStatusDto } from './dto/update-card-status.dto';
@@ -8,7 +8,7 @@ import { Card } from './entities/card.entity';
 @ApiTags('cards')
 @Controller('companies/:companyId/cards')
 export class CardController {
-  constructor(private readonly cardService: CardService) {}
+  constructor(private readonly cardService: CardService) { }
 
   @Get()
   @ApiOperation({ summary: 'List cards for company' })
@@ -23,6 +23,14 @@ export class CardController {
   @ApiResponse({ status: 404, description: 'Card not found' })
   findOne(@Param('companyId') companyId: string, @Param('cardId') cardId: string) {
     return this.cardService.findOne(companyId, cardId);
+  }
+
+  @Delete(':cardId')
+  @ApiOperation({ summary: 'Delete card' })
+  @ApiResponse({ status: 204, description: 'Card deleted' })
+  @ApiResponse({ status: 404, description: 'Card not found' })
+  remove(@Param('companyId') companyId: string, @Param('cardId') cardId: string) {
+    return this.cardService.remove(companyId, cardId);
   }
 
   @Post()

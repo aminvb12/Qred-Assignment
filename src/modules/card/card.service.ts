@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, MethodNotAllowedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Card, CardStatus } from './entities/card.entity';
@@ -44,10 +44,6 @@ export class CardService {
   async updateStatus(companyId: string, cardId: string, dto: UpdateCardStatusDto): Promise<Card> {
     const card = await this.findOne(companyId, cardId);
 
-    if (!card) {
-      throw new NotFoundException(`Card ${cardId} not found`);
-    }
-
     const today = new Date();
     const expDate = new Date(today);
     expDate.setFullYear(expDate.getFullYear() + 3);
@@ -81,6 +77,16 @@ export class CardService {
       isEven = !isEven;
     }
     return ((10 - (sum % 10)) % 10).toString();
+  }
+
+  async remove(companyId: string, cardId: string): Promise<void> {
+    const card = await this.findOne(companyId, cardId);
+
+    if (card.status === CardStatus.ACTIVE && card.current_credit > 0) {
+      throw new MethodNotAllowedException(`Cannot delete active card with outstanding credit`);
+    }
+
+    await this.cardRepo.remove(card);
   }
 
   private async findCompany(companyId: string): Promise<Company> {
