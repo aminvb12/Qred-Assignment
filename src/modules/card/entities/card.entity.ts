@@ -8,6 +8,7 @@ import {
 import { Company } from '../../company/entities/company.entity';
 
 export enum CardStatus {
+  UNDER_REVIEW = 'under_review',
   ACTIVE = 'active',
   INACTIVE = 'inactive',
   BLOCKED = 'blocked',
@@ -29,6 +30,9 @@ export class Card {
 
   @Column({ type: 'decimal', precision: 12, scale: 2 })
   max_credit: number;
+
+  @Column({ type: 'decimal', precision: 12, scale: 2 })
+  current_credit: number;
 
   @Column({
     type: 'enum',
