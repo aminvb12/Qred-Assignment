@@ -1,10 +1,5 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { ApiProperty } from '@nestjs/swagger';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Company } from '../../company/entities/company.entity';
 
 export enum CardStatus {
@@ -16,31 +11,35 @@ export enum CardStatus {
 
 @Entity('cards')
 export class Card {
+  @ApiProperty({ example: 'uuid' })
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @ApiProperty({ example: '4111111111111111' })
   @Column({ unique: true })
   card_number: string;
 
+  @ApiProperty({ example: '2024-01-01' })
   @Column({ type: 'date' })
   issue_date: Date;
 
+  @ApiProperty({ example: '2027-01-01' })
   @Column({ type: 'date' })
   exp_date: Date;
 
+  @ApiProperty({ example: 50000 })
   @Column({ type: 'decimal', precision: 12, scale: 2 })
   max_credit: number;
 
+  @ApiProperty({ example: 50000 })
   @Column({ type: 'decimal', precision: 12, scale: 2 })
   current_credit: number;
 
-  @Column({
-    type: 'enum',
-    enum: CardStatus,
-    default: CardStatus.INACTIVE,
-  })
+  @ApiProperty({ enum: CardStatus, example: CardStatus.INACTIVE })
+  @Column({ type: 'enum', enum: CardStatus, default: CardStatus.INACTIVE })
   status: CardStatus;
 
+  @ApiProperty({ example: 'uuid' })
   @Column()
   company_id: string;
 
