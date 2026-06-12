@@ -24,10 +24,7 @@ export class Transaction {
   @Column({ type: 'date', nullable: true })
   paid_date: Date;
 
-  @Column()
-  invoice_id: string;
-
   @OneToOne(() => Invoice, (invoice) => invoice.transaction)
-  @JoinColumn({ name: 'invoice_id' })
+  @JoinColumn({ name: 'ocr_number', referencedColumnName: 'ocr_number' })
   invoice: Invoice;
 }
