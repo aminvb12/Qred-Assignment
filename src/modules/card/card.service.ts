@@ -14,7 +14,7 @@ export class CardService {
 
     @InjectRepository(Company)
     private readonly companyRepo: Repository<Company>,
-  ) {}
+  ) { }
 
   async findAll(companyId: string): Promise<Card[]> {
     await this.findCompany(companyId);
@@ -32,14 +32,7 @@ export class CardService {
   async apply(companyId: string, dto: CreateCardDto): Promise<Card> {
     await this.findCompany(companyId);
 
-    const today = new Date();
-    const expDate = new Date(today);
-    expDate.setFullYear(expDate.getFullYear() + 3);
-
     const card = this.cardRepo.create({
-      card_number: this.generateCardNumber(),
-      issue_date: today,
-      exp_date: expDate,
       max_credit: dto.max_credit,
       current_credit: dto.max_credit,
       company_id: companyId,
@@ -50,7 +43,18 @@ export class CardService {
 
   async updateStatus(companyId: string, cardId: string, dto: UpdateCardStatusDto): Promise<Card> {
     const card = await this.findOne(companyId, cardId);
+
+    if (!card) {
+      throw new NotFoundException(`Card ${cardId} not found`);
+    }
+
+    const today = new Date();
+    const expDate = new Date(today);
+    expDate.setFullYear(expDate.getFullYear() + 3);
     card.status = dto.status;
+    card.card_number = this.generateCardNumber();
+    card.issue_date = today;
+    card.exp_date = expDate;
     return this.cardRepo.save(card);
   }
 
