@@ -30,10 +30,18 @@ export class CardService {
   }
 
   async apply(companyId: string, dto: CreateCardDto): Promise<Card> {
-    const company = await this.findCompany(companyId);
-    if(!company) throw new NotFoundException(`Company ${companyId} not found`);
+    await this.findCompany(companyId);
+
+    const today = new Date();
+    const expDate = new Date(today);
+    expDate.setFullYear(expDate.getFullYear() + 3);
+
     const card = this.cardRepo.create({
-      ...dto,
+      card_number: this.generateCardNumber(),
+      issue_date: today,
+      exp_date: expDate,
+      max_credit: dto.max_credit,
+      current_credit: dto.max_credit,
       company_id: companyId,
       status: CardStatus.UNDER_REVIEW,
     });
@@ -44,6 +52,31 @@ export class CardService {
     const card = await this.findOne(companyId, cardId);
     card.status = dto.status;
     return this.cardRepo.save(card);
+  }
+
+  private generateCardNumber(): string {
+    // Generate a 16-digit Luhn-valid card number with Qred BIN prefix 4539
+    const prefix = '4539';
+    let number = prefix;
+    for (let i = 0; i < 11; i++) {
+      number += Math.floor(Math.random() * 10).toString();
+    }
+    return number + this.luhnCheckDigit(number);
+  }
+
+  private luhnCheckDigit(partial: string): string {
+    let sum = 0;
+    let isEven = true;
+    for (let i = partial.length - 1; i >= 0; i--) {
+      let digit = parseInt(partial[i], 10);
+      if (isEven) {
+        digit *= 2;
+        if (digit > 9) digit -= 9;
+      }
+      sum += digit;
+      isEven = !isEven;
+    }
+    return ((10 - (sum % 10)) % 10).toString();
   }
 
   private async findCompany(companyId: string): Promise<Company> {
