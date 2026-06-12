@@ -135,9 +135,12 @@ Resources:
       VpcId: !ImportValue qred-VPCId
       TargetType: ip
       HealthCheckPath: /api/health
-      HealthCheckIntervalSeconds: 30
+      HealthCheckIntervalSeconds: 10
       HealthyThresholdCount: 2
       UnhealthyThresholdCount: 3
+      TargetGroupAttributes:
+        - Key: deregistration_delay.timeout_seconds
+          Value: "30"
 
   ALBListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
@@ -159,6 +162,9 @@ Resources:
       TaskDefinition: !Ref TaskDefinition
       DesiredCount: 1
       LaunchType: FARGATE
+      DeploymentConfiguration:
+        MinimumHealthyPercent: 0
+        MaximumPercent: 100
       NetworkConfiguration:
         AwsvpcConfiguration:
           AssignPublicIp: DISABLED

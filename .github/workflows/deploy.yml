@@ -54,30 +54,7 @@ jobs:
 
       - name: Wait for deployment
         run: |
-          for i in $(seq 1 24); do
-            STATUS=$(aws ecs describe-services \
-              --cluster $ECS_CLUSTER \
-              --services $ECS_SERVICE \
-              --region $AWS_REGION \
-              --query 'services[0].deployments' \
-              --output json)
-            RUNNING=$(echo $STATUS | python3 -c "import sys,json; d=json.load(sys.stdin); print(next(x['runningCount'] for x in d if x['status']=='PRIMARY'))")
-            DESIRED=$(echo $STATUS | python3 -c "import sys,json; d=json.load(sys.stdin); print(next(x['desiredCount'] for x in d if x['status']=='PRIMARY'))")
-            COUNT=$(echo $STATUS | python3 -c "import sys,json; print(len(json.load(sys.stdin)))")
-            echo "Attempt $i: deployments=$COUNT running=$RUNNING desired=$DESIRED"
-            if [ "$COUNT" = "1" ] && [ "$RUNNING" = "$DESIRED" ]; then
-              echo "Deployment stable!"
-              exit 0
-            fi
-            sleep 15
-          done
-          echo "Deployment did not stabilize — fetching logs..."
-          TASK=$(aws ecs list-tasks --cluster $ECS_CLUSTER --service-name $ECS_SERVICE --region $AWS_REGION --query 'taskArns[0]' --output text)
-          aws logs get-log-events \
-            --log-group-name /ecs/qred-assignment \
-            --log-stream-name $(aws logs describe-log-streams --log-group-name /ecs/qred-assignment --order-by LastEventTime --descending --limit 1 --query 'logStreams[0].logStreamName' --output text --region $AWS_REGION) \
-            --limit 50 \
-            --region $AWS_REGION \
-            --query 'events[*].message' \
-            --output text
-          exit 1
+          aws ecs wait services-stable \
+            --cluster $ECS_CLUSTER \
+            --services $ECS_SERVICE \
+            --region $AWS_REGION
