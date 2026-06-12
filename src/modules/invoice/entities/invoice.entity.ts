@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { Company } from '../../company/entities/company.entity';
 import { Transaction } from '../../transaction/entities/transaction.entity';
+import { InvoiceStatus } from '../dto/update-invoice-status.dto';
 
 @Entity('invoices')
 export class Invoice {
@@ -28,6 +29,9 @@ export class Invoice {
 
   @Column({ nullable: true })
   address: string;
+
+  @Column({ type: 'enum', enum: InvoiceStatus, default: InvoiceStatus.PENDING })
+  status: InvoiceStatus;
 
   @Column()
   company_id: string;
