@@ -2,6 +2,10 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HealthModule } from './modules/health/health.module';
+import { UserModule } from './modules/user/user.module';
+import { CardModule } from './modules/card/card.module';
+import { InvoiceModule } from './modules/invoice/invoice.module';
+import { TransactionModule } from './modules/transaction/transaction.module';
 
 @Module({
   imports: [
@@ -26,6 +30,10 @@ import { HealthModule } from './modules/health/health.module';
       }),
     }),
     HealthModule,
+    UserModule,
+    CardModule,
+    InvoiceModule,
+    TransactionModule,
   ],
 })
 export class AppModule {}
