@@ -1,0 +1,19 @@
+info:
+  name: get list of companies cards
+  type: http
+  seq: 6
+
+http:
+  method: GET
+  url: "{{base-url}}/companies/:companyId/cards"
+  params:
+    - name: companyId
+      value: ""
+      type: path
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

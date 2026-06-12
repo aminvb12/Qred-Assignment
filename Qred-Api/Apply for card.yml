@@ -1,0 +1,25 @@
+info:
+  name: "Apply for card "
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: "{{base-url}}/companies/:companyId/cards"
+  params:
+    - name: companyId
+      value: 84cedd89-ee8b-4175-8a87-4d1deb2e0b85
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "max_credit": 10000
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

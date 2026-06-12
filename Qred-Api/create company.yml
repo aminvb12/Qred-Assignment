@@ -8,7 +8,7 @@ http:
   url: "{{base-url}}/users/:userId/companies"
   params:
     - name: userId
-      value: 1684d811-f009-473b-9724-a57b356145fa
+      value: 947a5577-be27-4b9a-aa11-fb1ffe38dc7c
       type: path
   body:
     type: json

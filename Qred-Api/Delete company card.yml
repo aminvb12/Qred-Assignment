@@ -1,0 +1,22 @@
+info:
+  name: Delete company card
+  type: http
+  seq: 7
+
+http:
+  method: DELETE
+  url: "{{base-url}}/companies/:companyId/cards/:cardId"
+  params:
+    - name: companyId
+      value: 84cedd89-ee8b-4175-8a87-4d1deb2e0b85
+      type: path
+    - name: cardId
+      value: f0aaf62d-16bb-44fe-a07f-793cff0b19ed
+      type: path
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
