@@ -12,4 +12,5 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_NAME ?? 'nestdb',
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
   migrations: [__dirname + '/../migrations/*{.ts,.js}'],
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
 });

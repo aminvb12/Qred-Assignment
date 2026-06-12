@@ -1,0 +1,27 @@
+info:
+  name: create company
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{base-url}}/users/:userId/companies"
+  params:
+    - name: userId
+      value: 1684d811-f009-473b-9724-a57b356145fa
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "name": "QRED AB",
+        "logo": "https://media.licdn.com/dms/image/v2/D4D0BAQHF2bceaBADIw/company-logo_200_200/company-logo_200_200/0/1726069665501/qred_bank_ab_logo?e=2147483647&v=beta&t=r6SFsTwGA4YANxCmrLjeduvF8zcWZwhL7jwSEMt7G7Q",
+        "org_number": "5590089800"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

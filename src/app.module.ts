@@ -27,6 +27,9 @@ import { TransactionModule } from './modules/transaction/transaction.module';
         migrations: [__dirname + '/migrations/*{.ts,.js}'],
         synchronize: false,
         logging: config.get<string>('NODE_ENV') === 'development',
+        ssl: config.get<string>('NODE_ENV') === 'production'
+          ? { rejectUnauthorized: false }
+          : false,
       }),
     }),
     HealthModule,

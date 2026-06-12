@@ -1,0 +1,4 @@
+name: qred
+variables:
+  - name: base-url
+    value: qred-alb-330584852.us-east-1.elb.amazonaws.com/api
