@@ -15,17 +15,17 @@ export class Card {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ApiProperty({ example: '4111111111111111' })
-  @Column({ unique: true })
-  card_number: string;
+  @ApiProperty({ example: '4111111111111111', nullable: true })
+  @Column({ unique: true, nullable: true })
+  card_number: string | null;
 
-  @ApiProperty({ example: '2024-01-01' })
-  @Column({ type: 'date' })
-  issue_date: Date;
+  @ApiProperty({ example: '2024-01-01', nullable: true })
+  @Column({ type: 'date', nullable: true })
+  issue_date: Date | null;
 
-  @ApiProperty({ example: '2027-01-01' })
-  @Column({ type: 'date' })
-  exp_date: Date;
+  @ApiProperty({ example: '2027-01-01', nullable: true })
+  @Column({ type: 'date', nullable: true })
+  exp_date: Date | null;
 
   @ApiProperty({ example: 50000 })
   @Column({ type: 'decimal', precision: 12, scale: 2 })
