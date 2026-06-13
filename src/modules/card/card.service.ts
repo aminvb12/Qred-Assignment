@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { Card, CardStatus } from './entities/card.entity';
 import { Company } from '../company/entities/company.entity';
 import { CreateCardDto } from './dto/create-card.dto';
-import { UpdateCardStatusDto } from './dto/update-card-status.dto';
+import { UpdateCardDto } from './dto/update-card.dto';
 
 @Injectable()
 export class CardService {
@@ -41,16 +41,12 @@ export class CardService {
     return this.cardRepo.save(card);
   }
 
-  async updateStatus(companyId: string, cardId: string, dto: UpdateCardStatusDto): Promise<Card> {
+  async updateCard(companyId: string, cardId: string, dto: UpdateCardDto): Promise<Card> {
     const card = await this.findOne(companyId, cardId);
 
-    const today = new Date();
-    const expDate = new Date(today);
-    expDate.setFullYear(expDate.getFullYear() + 3);
+
     card.status = dto.status;
-    card.card_number = this.generateCardNumber();
-    card.issue_date = today;
-    card.exp_date = expDate;
+    card.current_credit = dto.current_credit; // In a real system, current_credit would be updated based on transactions, not directly by the user
     return this.cardRepo.save(card);
   }
 

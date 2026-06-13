@@ -2,7 +2,7 @@ import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { CardService } from './card.service';
 import { CreateCardDto } from './dto/create-card.dto';
-import { UpdateCardStatusDto } from './dto/update-card-status.dto';
+import { UpdateCardDto } from './dto/update-card.dto';
 import { Card } from './entities/card.entity';
 
 @ApiTags('cards')
@@ -52,9 +52,9 @@ export class CardController {
   updateStatus(
     @Param('companyId') companyId: string,
     @Param('cardId') cardId: string,
-    @Body() dto: UpdateCardStatusDto,
+    @Body() dto: UpdateCardDto,
   ) {
-    return this.cardService.updateStatus(companyId, cardId, dto);
+    return this.cardService.updateCard(companyId, cardId, dto);
   }
 
   @Post(':cardId/activations')
