@@ -14,7 +14,7 @@ export class InternalLedgerSource implements ITransactionSource {
   constructor(
     @InjectDataSource()
     private readonly dataSource: DataSource,
-  ) {}
+  ) { }
 
   async getTransactions(companyId: string): Promise<Transaction[]> {
     return this.dataSource
@@ -54,15 +54,15 @@ export class InternalLedgerSource implements ITransactionSource {
       card.current_credit = Number(card.current_credit) - Number(invoice.amount);
       await queryRunner.manager.save(Card, card);
 
-      invoice.status = InvoiceStatus.PROCESSING;
-      await queryRunner.manager.save(Invoice, invoice);
-
       const transaction = queryRunner.manager.create(Transaction, {
         ocr_number: ocr,
         amount: invoice.amount,
         date: new Date(),
       });
       const saved = await queryRunner.manager.save(Transaction, transaction);
+
+      invoice.status = InvoiceStatus.PAID;
+      await queryRunner.manager.save(Invoice, invoice);
 
       await queryRunner.commitTransaction();
       return saved;
