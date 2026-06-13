@@ -46,7 +46,9 @@ export class CardService {
 
 
     card.status = dto.status;
-    card.current_credit = dto.current_credit; // In a real system, current_credit would be updated based on transactions, not directly by the user
+    if (dto.current_credit !== undefined) {
+      card.current_credit = dto.current_credit;
+    }
     return this.cardRepo.save(card);
   }
 

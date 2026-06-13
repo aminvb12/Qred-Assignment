@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsNumber, IsOptional, IsPositive } from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, Min } from 'class-validator';
 import { CardStatus } from '../entities/card.entity';
 
 export class UpdateCardDto {
@@ -7,9 +7,9 @@ export class UpdateCardDto {
   @IsEnum(CardStatus)
   status: CardStatus;
 
-  @ApiPropertyOptional({ example: 5000 })
+  @ApiPropertyOptional({ example: 0, description: 'Set remaining credit (0 to max_credit)' })
   @IsOptional()
   @IsNumber()
-  @IsPositive()
-  current_credit?: number; // In a real system this would not be updated directly by the user
+  @Min(0)
+  current_credit?: number;
 }
