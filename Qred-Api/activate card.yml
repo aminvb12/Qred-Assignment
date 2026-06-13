@@ -1,18 +1,21 @@
 info:
-  name: Delete company card
+  name: activate card
   type: http
-  seq: 7
+  seq: 9
 
 http:
-  method: DELETE
-  url: "{{base-url}}/companies/:companyId/cards/:cardId"
+  method: POST
+  url: "{{base-url}}/companies/:companyId/cards/:cardId/activations"
   params:
     - name: companyId
       value: dc5c6e18-750c-4093-a635-297bfb343359
       type: path
     - name: cardId
-      value: f47f0ff2-9d0c-4fd7-8abc-1988b46a0ac0
+      value: 9341cae1-caab-449c-9b8e-c9390acb31ed
       type: path
+  body:
+    type: json
+    data: ""
   auth: inherit
 
 settings:

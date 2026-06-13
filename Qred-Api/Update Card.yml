@@ -1,14 +1,17 @@
 info:
-  name: Update Card Status
+  name: Update Card
   type: http
   seq: 8
 
 http:
   method: PATCH
-  url: "{{base-url}}/cards/:cardId/status"
+  url: "{{base-url}}/companies/:companyId/cards/:cardId"
   params:
+    - name: companyId
+      value: dc5c6e18-750c-4093-a635-297bfb343359
+      type: path
     - name: cardId
-      value: f47f0ff2-9d0c-4fd7-8abc-1988b46a0ac0
+      value: 9341cae1-caab-449c-9b8e-c9390acb31ed
       type: path
   body:
     type: json
