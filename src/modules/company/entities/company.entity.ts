@@ -22,6 +22,13 @@ export class Company {
   @Column({ nullable: true })
   logo: string;
 
+  // Determines which payment provider handles transactions for this company.
+  // Defaults to 'internal' (own ledger). Can be swapped to 'stripe', 'adyen', or 'nets'
+  // without any changes to the API contract or controller layer.
+  @ApiPropertyOptional({ example: 'internal', enum: ['internal', 'stripe', 'adyen', 'nets'] })
+  @Column({ nullable: true, default: 'internal' })
+  payment_provider: string;
+
   @OneToMany(() => UserCompany, (uc) => uc.company)
   user_companies: UserCompany[];
 
