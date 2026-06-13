@@ -60,6 +60,31 @@ Resources:
                   - secretsmanager:GetSecretValue
                 Resource: !ImportValue qred-DBSecretArn
 
+  # ── IAM Role for ECS Task (runtime permissions) ───────────────────────────
+  ECSTaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: qred-ecs-task-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: SSMMessagesAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ssmmessages:CreateControlChannel
+                  - ssmmessages:CreateDataChannel
+                  - ssmmessages:OpenControlChannel
+                  - ssmmessages:OpenDataChannel
+                Resource: '*'
+
   # ── CloudWatch Log Group ───────────────────────────────────────────────────
   LogGroup:
     Type: AWS::Logs::LogGroup
@@ -78,6 +103,7 @@ Resources:
       Cpu: '256'
       Memory: '512'
       ExecutionRoleArn: !GetAtt ECSTaskExecutionRole.Arn
+      TaskRoleArn: !GetAtt ECSTaskRole.Arn
       ContainerDefinitions:
         - Name: qred-assignment
           Image: !Sub ${AccountId}.dkr.ecr.us-east-1.amazonaws.com/qred-assignment:${ImageTag}
@@ -162,9 +188,6 @@ Resources:
       TaskDefinition: !Ref TaskDefinition
       DesiredCount: 1
       LaunchType: FARGATE
-      DeploymentConfiguration:
-        MinimumHealthyPercent: 0
-        MaximumPercent: 100
       NetworkConfiguration:
         AwsvpcConfiguration:
           AssignPublicIp: DISABLED
