@@ -8,15 +8,15 @@ http:
   url: "{{base-url}}/users/:userId/companies"
   params:
     - name: userId
-      value: 947a5577-be27-4b9a-aa11-fb1ffe38dc7c
+      value: bc78c216-759f-473d-b6f2-3f6b822ba9f7
       type: path
   body:
     type: json
     data: |-
       {
-        "name": "QRED AB",
-        "logo": "https://media.licdn.com/dms/image/v2/D4D0BAQHF2bceaBADIw/company-logo_200_200/company-logo_200_200/0/1726069665501/qred_bank_ab_logo?e=2147483647&v=beta&t=r6SFsTwGA4YANxCmrLjeduvF8zcWZwhL7jwSEMt7G7Q",
-        "org_number": "5590089800"
+        "name": "Swish AB",
+        "logo": "https://play-lh.googleusercontent.com/NiU9oukn_XtdpjyODVezYIxeZ3Obs04bH9VZa0MAhZN4s9x5mG9O1lO_ZF37CDKck_8K",
+        "org_number": "5590081200"
       }
   auth: inherit
 

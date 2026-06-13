@@ -1,20 +1,20 @@
 info:
-  name: "Apply for card "
+  name: Update Card Status
   type: http
-  seq: 5
+  seq: 8
 
 http:
-  method: POST
-  url: "{{base-url}}/companies/:companyId/cards"
+  method: PATCH
+  url: "{{base-url}}/cards/:cardId/status"
   params:
-    - name: companyId
-      value: dc5c6e18-750c-4093-a635-297bfb343359
+    - name: cardId
+      value: f47f0ff2-9d0c-4fd7-8abc-1988b46a0ac0
       type: path
   body:
     type: json
     data: |-
       {
-        "max_credit": 10000
+        "status": "active"
       }
   auth: inherit
 

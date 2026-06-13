@@ -46,8 +46,8 @@ export class CardController {
   //  As documented in the PDF,
   //  activation is a system decision that follows credit approval, not a user action.
 
-  @Patch(':cardId/status')
-  @ApiOperation({ summary: 'Update card status' })
+  @Patch(':cardId')
+  @ApiOperation({ summary: 'Update card data' })
   @ApiResponse({ status: 200, type: Card })
   updateStatus(
     @Param('companyId') companyId: string,

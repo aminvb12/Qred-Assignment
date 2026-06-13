@@ -8,7 +8,7 @@ http:
   url: "{{base-url}}/companies/:companyId/cards"
   params:
     - name: companyId
-      value: ""
+      value: dc5c6e18-750c-4093-a635-297bfb343359
       type: path
   auth: inherit
 

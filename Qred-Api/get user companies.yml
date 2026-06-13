@@ -8,7 +8,7 @@ http:
   url: "{{base-url}}/users/:userId/companies"
   params:
     - name: userId
-      value: 1684d811-f009-473b-9724-a57b356145fa
+      value: bc78c216-759f-473d-b6f2-3f6b822ba9f7
       type: path
   auth: inherit
 
