@@ -1,20 +1,22 @@
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, Query } from '@nestjs/common';
 import { InvoiceService } from './invoice.service';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { UpdateInvoiceStatusDto } from './dto/update-invoice-status.dto';
+import { QueryInvoiceDto } from './dto/query-invoice.dto';
 import { Invoice } from './entities/invoice.entity';
 
+// Company-scoped routes: GET /companies/:companyId/invoices, POST /companies/:companyId/invoices/:ocr/payments
 @ApiTags('invoices')
-@Controller('invoices')
+@Controller('companies/:companyId/invoices')
 export class InvoiceController {
   constructor(private readonly invoiceService: InvoiceService) {}
 
   @Get()
-  @ApiOperation({ summary: 'List all invoices' })
+  @ApiOperation({ summary: 'List invoices for a company' })
   @ApiResponse({ status: 200, type: [Invoice] })
-  findAll() {
-    return this.invoiceService.findAll();
+  findAll(@Param('companyId') companyId: string, @Query() query: QueryInvoiceDto) {
+    return this.invoiceService.findAll(companyId, query);
   }
 
   @Get(':id')
@@ -25,17 +27,34 @@ export class InvoiceController {
     return this.invoiceService.findOne(id);
   }
 
-  @Post()
-  @ApiOperation({ summary: 'Create invoice' })
-  @ApiResponse({ status: 201, type: Invoice })
-  create(@Body() dto: CreateInvoiceDto) {
-    return this.invoiceService.create(dto);
-  }
-
   @Patch(':id/status')
   @ApiOperation({ summary: 'Update invoice status' })
   @ApiResponse({ status: 200, type: Invoice })
   updateStatus(@Param('id') id: string, @Body() dto: UpdateInvoiceStatusDto) {
     return this.invoiceService.updateStatus(id, dto);
+  }
+
+  @Post(':ocr/payments')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Pay a Qred invoice — restores company credit limit' })
+  @ApiResponse({ status: 200, type: Invoice })
+  @ApiResponse({ status: 400, description: 'Invoice already paid or processing' })
+  @ApiResponse({ status: 404, description: 'Invoice not found' })
+  pay(@Param('companyId') companyId: string, @Param('ocr') ocr: string) {
+    return this.invoiceService.pay(companyId, ocr);
+  }
+}
+
+// Top-level invoice creation — Qred creates invoices identified by org_number, not company UUID
+@ApiTags('invoices')
+@Controller('invoices')
+export class InvoiceAdminController {
+  constructor(private readonly invoiceService: InvoiceService) {}
+
+  @Post()
+  @ApiOperation({ summary: 'Create invoice (Qred → company, identified by org_number)' })
+  @ApiResponse({ status: 201, type: Invoice })
+  create(@Body() dto: CreateInvoiceDto) {
+    return this.invoiceService.create(dto);
   }
 }
