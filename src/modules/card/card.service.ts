@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, MethodNotAllowedException } from '@nestjs/common';
+import { Injectable, NotFoundException, MethodNotAllowedException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Card, CardStatus } from './entities/card.entity';
@@ -77,6 +77,25 @@ export class CardService {
       isEven = !isEven;
     }
     return ((10 - (sum % 10)) % 10).toString();
+  }
+
+  async activate(companyId: string, cardId: string): Promise<Card> {
+    const card = await this.findOne(companyId, cardId);
+
+    if (card.status !== CardStatus.UNDER_REVIEW) {
+      throw new BadRequestException(`Card must be in under_review status to activate`);
+    }
+
+    const today = new Date();
+    const expDate = new Date(today);
+    expDate.setFullYear(expDate.getFullYear() + 3);
+
+    card.card_number = this.generateCardNumber();
+    card.issue_date = today;
+    card.exp_date = expDate;
+    card.status = CardStatus.ACTIVE;
+
+    return this.cardRepo.save(card);
   }
 
   async remove(companyId: string, cardId: string): Promise<void> {

@@ -40,6 +40,12 @@ export class CardController {
     return this.cardService.apply(companyId, dto);
   }
 
+  //The POST /cards/:id/activations and Patch /cards/:cardId/status endpoint shouldn't be in CardController at all — 
+  // it should be triggered internally by the credit check result handler, 
+  // not exposed as a public REST endpoint.
+  //  As documented in the PDF,
+  //  activation is a system decision that follows credit approval, not a user action.
+
   @Patch(':cardId/status')
   @ApiOperation({ summary: 'Update card status' })
   @ApiResponse({ status: 200, type: Card })
@@ -49,5 +55,17 @@ export class CardController {
     @Body() dto: UpdateCardStatusDto,
   ) {
     return this.cardService.updateStatus(companyId, cardId, dto);
+  }
+
+  @Post(':cardId/activations')
+  @ApiOperation({ summary: 'Activate a card after credit approval' })
+  @ApiResponse({ status: 201, type: Card, description: 'Card activated with card number and dates set' })
+  @ApiResponse({ status: 400, description: 'Card is not in under_review status' })
+  @ApiResponse({ status: 404, description: 'Card not found' })
+  activate(
+    @Param('companyId') companyId: string,
+    @Param('cardId') cardId: string,
+  ) {
+    return this.cardService.activate(companyId, cardId);
   }
 }
