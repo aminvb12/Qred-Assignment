@@ -52,40 +52,45 @@ describe('TransactionsController (e2e)', () => {
     });
   });
 
-  describe('POST /companies/:companyId/transactions/:ocr/payments', () => {
+  describe('POST /companies/:companyId/transactions', () => {
+    const payDto = { card_number: '4539123456789012', exp_date: '2027-01-01', amount: 5000 };
+
     it('returns 201 with created transaction', async () => {
       transactionService.pay.mockResolvedValue(transaction);
       return request(app.getHttpServer())
-        .post('/companies/c1/transactions/OCR001/payments')
-        .send({ card_number: '4539123456789012', exp_date: '2027-01-01' })
+        .post('/companies/c1/transactions')
+        .send(payDto)
         .expect(201)
         .expect(transaction);
     });
 
     it('returns 400 for missing card_number', async () => {
       return request(app.getHttpServer())
-        .post('/companies/c1/transactions/OCR001/payments')
-        .send({ exp_date: '2027-01-01' })
+        .post('/companies/c1/transactions')
+        .send({ exp_date: '2027-01-01', amount: 5000 })
+        .expect(400);
+    });
+
+    it('returns 400 for missing amount', async () => {
+      return request(app.getHttpServer())
+        .post('/companies/c1/transactions')
+        .send({ card_number: '4539123456789012', exp_date: '2027-01-01' })
         .expect(400);
     });
 
     it('returns 400 for invalid exp_date format', async () => {
       return request(app.getHttpServer())
-        .post('/companies/c1/transactions/OCR001/payments')
-        .send({ card_number: '4539123456789012', exp_date: 'not-a-date' })
+        .post('/companies/c1/transactions')
+        .send({ card_number: '4539123456789012', exp_date: 'not-a-date', amount: 5000 })
         .expect(400);
     });
 
     it('passes correct args to service', async () => {
       transactionService.pay.mockResolvedValue(transaction);
       await request(app.getHttpServer())
-        .post('/companies/c1/transactions/OCR001/payments')
-        .send({ card_number: '4539123456789012', exp_date: '2027-01-01' });
-      expect(transactionService.pay).toHaveBeenCalledWith(
-        'OCR001',
-        { card_number: '4539123456789012', exp_date: '2027-01-01' },
-        'c1',
-      );
+        .post('/companies/c1/transactions')
+        .send(payDto);
+      expect(transactionService.pay).toHaveBeenCalledWith(payDto, 'c1');
     });
   });
 });

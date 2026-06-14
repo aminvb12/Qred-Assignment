@@ -68,15 +68,15 @@ describe('TransactionService', () => {
       const source = { pay: jest.fn().mockResolvedValue(tx) };
       factory.forCompany.mockReturnValue(source);
 
-      const dto = { card_number: '4539123456789012', exp_date: '2027-01-01' };
-      const result = await service.pay('OCR001', dto, 'c1');
+      const dto = { card_number: '4539123456789012', exp_date: '2027-01-01', amount: 5000 };
+      const result = await service.pay(dto, 'c1');
       expect(result).toEqual(tx);
-      expect(source.pay).toHaveBeenCalledWith('OCR001', dto, company);
+      expect(source.pay).toHaveBeenCalledWith(dto, company);
     });
 
     it('throws NotFoundException for unknown company', async () => {
       companyRepo.findOne.mockResolvedValue(null);
-      await expect(service.pay('OCR001', {} as any, 'bad')).rejects.toThrow(NotFoundException);
+      await expect(service.pay({} as any, 'bad')).rejects.toThrow(NotFoundException);
     });
   });
 });

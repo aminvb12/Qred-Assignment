@@ -22,9 +22,9 @@ export class TransactionService {
     return this.factory.forCompany(company).getTransactions(companyId, cardId);
   }
 
-  async pay(ocr: string, dto: CreateTransactionDto, companyId: string): Promise<Transaction> {
+  async pay(dto: CreateTransactionDto, companyId: string): Promise<Transaction> {
     const company = await this.findCompany(companyId);
-    return this.factory.forCompany(company).pay(ocr, dto, company);
+    return this.factory.forCompany(company).pay(dto, company);
   }
 
   private async findCompany(companyId: string): Promise<Company> {

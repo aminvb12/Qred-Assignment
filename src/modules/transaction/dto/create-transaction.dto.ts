@@ -1,5 +1,5 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsDateString, IsNumber, IsOptional, IsPositive, IsString } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsDateString, IsNumber, IsPositive, IsString } from 'class-validator';
 
 export class CreateTransactionDto {
   @ApiProperty({ example: '4111111111111111' })
@@ -10,12 +10,8 @@ export class CreateTransactionDto {
   @IsDateString()
   exp_date: string;
 
-  @ApiPropertyOptional({
-    example: 5000,
-    description: 'Required only when no pre-existing invoice exists for the OCR. Invoice will be auto-derived from the transaction.',
-  })
-  @IsOptional()
+  @ApiProperty({ example: 5000, description: 'Transaction amount to charge against the card.' })
   @IsNumber()
   @IsPositive()
-  amount?: number;
+  amount: number;
 }

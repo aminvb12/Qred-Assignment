@@ -20,17 +20,16 @@ export class TransactionController {
     return this.transactionService.getTransactions(companyId, cardId);
   }
 
-  @Post(':ocr/payments')
+  @Post()
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Pay invoice by OCR number' })
+  @ApiOperation({ summary: 'Make a payment with a card — auto-generates a Qred invoice for the company' })
   @ApiResponse({ status: 201, type: Transaction })
   @ApiResponse({ status: 400, description: 'Insufficient credit or invalid card' })
-  @ApiResponse({ status: 404, description: 'Invoice or card not found' })
+  @ApiResponse({ status: 404, description: 'Card not found' })
   pay(
     @Param('companyId') companyId: string,
-    @Param('ocr') ocr: string,
     @Body() dto: CreateTransactionDto,
   ) {
-    return this.transactionService.pay(ocr, dto, companyId);
+    return this.transactionService.pay(dto, companyId);
   }
 }
