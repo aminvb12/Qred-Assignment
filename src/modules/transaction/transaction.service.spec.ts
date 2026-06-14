@@ -53,7 +53,7 @@ describe('TransactionService', () => {
       const result = await service.getTransactions('c1');
       expect(result).toEqual([tx]);
       expect(factory.forCompany).toHaveBeenCalledWith(company);
-      expect(source.getTransactions).toHaveBeenCalledWith('c1');
+      expect(source.getTransactions).toHaveBeenCalledWith('c1', undefined);
     });
 
     it('throws NotFoundException for unknown company', async () => {

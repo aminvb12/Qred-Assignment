@@ -15,11 +15,11 @@ export class TransactionService {
     private readonly companyRepo: Repository<Company>,
   ) {}
 
-  async getTransactions(companyId: string): Promise<Transaction[]> {
+  async getTransactions(companyId: string, cardId?: string): Promise<Transaction[]> {
     const company = await this.findCompany(companyId);
     // Factory selects the correct source based on company.payment_provider
     // (e.g. 'internal', 'stripe', 'adyen', 'nets')
-    return this.factory.forCompany(company).getTransactions(companyId);
+    return this.factory.forCompany(company).getTransactions(companyId, cardId);
   }
 
   async pay(ocr: string, dto: CreateTransactionDto, companyId: string): Promise<Transaction> {

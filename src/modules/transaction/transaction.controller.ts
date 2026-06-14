@@ -1,5 +1,5 @@
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Query } from '@nestjs/common';
 import { TransactionService } from './transaction.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { Transaction } from './entities/transaction.entity';
@@ -11,9 +11,13 @@ export class TransactionController {
 
   @Get()
   @ApiOperation({ summary: 'List transactions for a company' })
+  @ApiQuery({ name: 'card_id', required: false, description: 'Filter transactions by card ID' })
   @ApiResponse({ status: 200, type: [Transaction] })
-  getTransactions(@Param('companyId') companyId: string) {
-    return this.transactionService.getTransactions(companyId);
+  getTransactions(
+    @Param('companyId') companyId: string,
+    @Query('card_id') cardId?: string,
+  ) {
+    return this.transactionService.getTransactions(companyId, cardId);
   }
 
   @Post(':ocr/payments')
