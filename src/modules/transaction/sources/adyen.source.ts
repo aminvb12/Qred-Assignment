@@ -13,9 +13,9 @@ export class AdyenSource implements ITransactionSource {
     throw new Error('Not implemented');
   }
 
-  async pay(_ocr: string, _dto: CreateTransactionDto, _company: Company): Promise<Transaction> {
+  async pay(_dto: CreateTransactionDto, _company: Company): Promise<Transaction> {
     // ...
-    // await adyenClient.payments().makePayment({ reference: ocr, amount: invoice.amount, ... });
+    // await adyenClient.payments().makePayment({ reference: _dto.card_number, amount: _dto.amount, ... });
     throw new Error('Not implemented');
   }
 }
