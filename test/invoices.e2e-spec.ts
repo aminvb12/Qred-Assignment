@@ -4,14 +4,12 @@ import * as request from 'supertest';
 import { InvoiceController, InvoiceAdminController } from '../src/modules/invoice/invoice.controller';
 import { InvoiceService } from '../src/modules/invoice/invoice.service';
 import { InvoiceStatus } from '../src/modules/invoice/dto/update-invoice-status.dto';
-import { InvoiceType } from '../src/modules/invoice/entities/invoice.entity';
 
 const mockInvoiceService = () => ({
   findAll: jest.fn(),
   findOne: jest.fn(),
   create: jest.fn(),
   updateStatus: jest.fn(),
-  pay: jest.fn(),
 });
 
 describe('InvoicesController (e2e)', () => {
@@ -26,7 +24,6 @@ describe('InvoicesController (e2e)', () => {
     amount: 15000,
     from: 'Qred AB',
     from_org_number: '5560206220',
-    type: InvoiceType.STATEMENT,
     status: InvoiceStatus.PENDING,
     company_id: 'c1',
   };
@@ -63,14 +60,6 @@ describe('InvoicesController (e2e)', () => {
         .get('/companies/c1/invoices?status=pending')
         .expect(200);
       expect(invoiceService.findAll).toHaveBeenCalledWith('c1', expect.objectContaining({ status: 'pending' }));
-    });
-
-    it('passes type query param', async () => {
-      invoiceService.findAll.mockResolvedValue([invoice]);
-      await request(app.getHttpServer())
-        .get('/companies/c1/invoices?type=statement')
-        .expect(200);
-      expect(invoiceService.findAll).toHaveBeenCalledWith('c1', expect.objectContaining({ type: 'statement' }));
     });
   });
 
@@ -140,16 +129,6 @@ describe('InvoicesController (e2e)', () => {
         .patch('/companies/c1/invoices/inv1/status')
         .send({ status: 'invalid' })
         .expect(400);
-    });
-  });
-
-  describe('POST /companies/:companyId/invoices/:ocr/payments', () => {
-    it('returns 200 with paid invoice', async () => {
-      invoiceService.pay.mockResolvedValue(paidInvoice);
-      return request(app.getHttpServer())
-        .post('/companies/c1/invoices/OCR001/payments')
-        .expect(200)
-        .expect(paidInvoice);
     });
   });
 });

@@ -1,6 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsDateString, IsEnum, IsNumber, IsOptional, IsPositive, IsString } from 'class-validator';
-import { InvoiceType } from '../entities/invoice.entity';
+import { IsDateString, IsNumber, IsOptional, IsPositive, IsString } from 'class-validator';
 
 export class CreateInvoiceDto {
   @ApiProperty({ example: '1234567890' })
@@ -36,9 +35,4 @@ export class CreateInvoiceDto {
   @IsOptional()
   @IsString()
   address?: string;
-
-  @ApiPropertyOptional({ enum: InvoiceType, example: InvoiceType.STATEMENT })
-  @IsOptional()
-  @IsEnum(InvoiceType)
-  type?: InvoiceType;
 }

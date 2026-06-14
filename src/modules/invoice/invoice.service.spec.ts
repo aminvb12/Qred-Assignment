@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { NotFoundException } from '@nestjs/common';
 import { InvoiceService } from './invoice.service';
-import { Invoice, InvoiceType } from './entities/invoice.entity';
+import { Invoice } from './entities/invoice.entity';
 import { Company } from '../company/entities/company.entity';
 import { InvoiceStatus } from './dto/update-invoice-status.dto';
 
@@ -35,7 +35,6 @@ describe('InvoiceService', () => {
     due_date: new Date('2024-02-01'),
     amount: 15000,
     status: InvoiceStatus.PENDING,
-    type: InvoiceType.STATEMENT,
     company_id: 'c1',
     from: 'Qred AB',
     from_org_number: '5560206220',
@@ -70,14 +69,6 @@ describe('InvoiceService', () => {
       invoiceRepo.createQueryBuilder.mockReturnValue(qb);
       await service.findAll('c1', { status: InvoiceStatus.PENDING });
       expect(qb.andWhere).toHaveBeenCalledWith('invoice.status = :status', { status: InvoiceStatus.PENDING });
-    });
-
-    it('applies type filter', async () => {
-      const qb = mockQueryBuilder();
-      qb.getMany.mockResolvedValue([pendingInvoice]);
-      invoiceRepo.createQueryBuilder.mockReturnValue(qb);
-      await service.findAll('c1', { type: InvoiceType.STATEMENT });
-      expect(qb.andWhere).toHaveBeenCalledWith('invoice.type = :type', { type: InvoiceType.STATEMENT });
     });
   });
 

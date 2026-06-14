@@ -4,11 +4,6 @@ import { Company } from '../../company/entities/company.entity';
 import { Transaction } from '../../transaction/entities/transaction.entity';
 import { InvoiceStatus } from '../dto/update-invoice-status.dto';
 
-export enum InvoiceType {
-  STATEMENT = 'statement',
-  FEE = 'fee',
-}
-
 @Entity('invoices')
 export class Invoice {
   @ApiProperty({ example: 'uuid' })
@@ -42,10 +37,6 @@ export class Invoice {
   @ApiProperty({ example: '5560206220' })
   @Column({ nullable: true })
   from_org_number: string;
-
-  @ApiProperty({ enum: InvoiceType, example: InvoiceType.STATEMENT })
-  @Column({ type: 'enum', enum: InvoiceType, default: InvoiceType.STATEMENT })
-  type: InvoiceType;
 
   @ApiProperty({ enum: InvoiceStatus, example: InvoiceStatus.PENDING })
   @Column({ type: 'enum', enum: InvoiceStatus, default: InvoiceStatus.PENDING })
