@@ -16,14 +16,19 @@ export class InternalLedgerSource implements ITransactionSource {
     private readonly dataSource: DataSource,
   ) { }
 
-  async getTransactions(companyId: string): Promise<Transaction[]> {
-    return this.dataSource
+  async getTransactions(companyId: string, cardId?: string): Promise<Transaction[]> {
+    const qb = this.dataSource
       .getRepository(Transaction)
       .createQueryBuilder('t')
       .innerJoin('t.invoice', 'i')
-      .where('i.company_id = :companyId', { companyId })
-      .orderBy('t.date', 'DESC')
-      .getMany();
+      .leftJoinAndSelect('t.card', 'card')
+      .where('i.company_id = :companyId', { companyId });
+
+    if (cardId) {
+      qb.andWhere('t.card_id = :cardId', { cardId });
+    }
+
+    return qb.orderBy('t.date', 'DESC').getMany();
   }
 
   async pay(ocr: string, dto: CreateTransactionDto, company: Company): Promise<Transaction> {
@@ -77,6 +82,7 @@ export class InternalLedgerSource implements ITransactionSource {
         amount: chargeAmount,
         date: now,
         paid_date: now,
+        card_id: card.id,
       });
       const saved = await queryRunner.manager.save(Transaction, transaction);
 

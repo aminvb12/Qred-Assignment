@@ -6,7 +6,7 @@ import { Company } from '../../company/entities/company.entity';
 
 @Injectable()
 export class StripeIssuingSource implements ITransactionSource {
-  async getTransactions(_companyId: string): Promise<Transaction[]> {
+  async getTransactions(_companyId: string, _cardId?: string): Promise<Transaction[]> {
     // ...
     // const charges = await stripe.issuing.transactions.list({ cardholder: company.stripe_cardholder_id });
     // return charges.data.map(mapStripeTransactionToEntity);

@@ -6,7 +6,7 @@ import { Company } from '../../company/entities/company.entity';
 
 @Injectable()
 export class AdyenSource implements ITransactionSource {
-  async getTransactions(_companyId: string): Promise<Transaction[]> {
+  async getTransactions(_companyId: string, _cardId?: string): Promise<Transaction[]> {
     // ...
     // const response = await adyenClient.management().getTransactions({ merchantAccount: company.adyen_merchant_id });
     // return response.data.map(mapAdyenTransactionToEntity);

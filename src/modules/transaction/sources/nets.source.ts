@@ -6,7 +6,7 @@ import { Company } from '../../company/entities/company.entity';
 
 @Injectable()
 export class NetsSource implements ITransactionSource {
-  async getTransactions(_companyId: string): Promise<Transaction[]> {
+  async getTransactions(_companyId: string, _cardId?: string): Promise<Transaction[]> {
     // ...
     // const response = await netsClient.getTransactions({ agreementId: company.nets_agreement_id });
     // return response.transactions.map(mapNetsTransactionToEntity);

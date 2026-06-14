@@ -6,5 +6,5 @@ export const TRANSACTION_SOURCE = 'TRANSACTION_SOURCE';
 
 export interface ITransactionSource {
   pay(ocr: string, dto: CreateTransactionDto, company: Company): Promise<Transaction>;
-  getTransactions(companyId: string): Promise<Transaction[]>;
+  getTransactions(companyId: string, cardId?: string): Promise<Transaction[]>;
 }
