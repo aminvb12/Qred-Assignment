@@ -48,7 +48,7 @@ describe('TransactionsController (e2e)', () => {
     it('passes companyId to service', async () => {
       transactionService.getTransactions.mockResolvedValue([]);
       await request(app.getHttpServer()).get('/companies/c1/transactions');
-      expect(transactionService.getTransactions).toHaveBeenCalledWith('c1');
+      expect(transactionService.getTransactions).toHaveBeenCalledWith('c1', undefined);
     });
   });
 
