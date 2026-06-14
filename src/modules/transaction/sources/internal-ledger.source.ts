@@ -102,7 +102,7 @@ export class InternalLedgerSource implements ITransactionSource {
           issue_date: now,
           due_date: dueDate,
           company_id: company.id,
-          status: InvoiceStatus.PAID,
+          status: InvoiceStatus.PENDING,
           from: 'Qred AB',
           from_org_number: '5560206220',
         });
