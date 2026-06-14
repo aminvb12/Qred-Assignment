@@ -22,9 +22,9 @@ describe('CardService', () => {
 
   const card: Card = {
     id: 'card1',
-    card_number: null,
-    issue_date: null,
-    exp_date: null,
+    card_number: '4539000000000000',
+    issue_date: new Date('2026-01-01'),
+    exp_date: new Date('2029-01-01'),
     max_credit: 50000,
     current_credit: 50000,
     status: CardStatus.UNDER_REVIEW,
@@ -78,7 +78,7 @@ describe('CardService', () => {
   });
 
   describe('apply', () => {
-    it('creates a card with under_review status', async () => {
+    it('creates a card with under_review status and generates card credentials', async () => {
       companyRepo.findOne.mockResolvedValue(company);
       cardRepo.create.mockReturnValue(card);
       cardRepo.save.mockResolvedValue(card);
@@ -89,7 +89,20 @@ describe('CardService', () => {
         current_credit: 50000,
         company_id: 'c1',
         status: CardStatus.UNDER_REVIEW,
+        card_number: expect.stringMatching(/^\d{16}$/),
+        issue_date: expect.any(Date),
+        exp_date: expect.any(Date),
       }));
+    });
+
+    it('sets exp_date 3 years after issue_date', async () => {
+      companyRepo.findOne.mockResolvedValue(company);
+      let captured: any;
+      cardRepo.create.mockImplementation((data) => { captured = data; return data; });
+      cardRepo.save.mockImplementation(c => Promise.resolve(c));
+      await service.apply('c1', { max_credit: 50000 });
+      const diff = captured.exp_date.getFullYear() - captured.issue_date.getFullYear();
+      expect(diff).toBe(3);
     });
 
     it('throws NotFoundException for unknown company', async () => {
@@ -99,14 +112,16 @@ describe('CardService', () => {
   });
 
   describe('activate', () => {
-    it('activates a card in under_review status', async () => {
-      cardRepo.findOne.mockResolvedValue({ ...card });
+    it('sets status to active without changing card credentials', async () => {
+      const underReviewCard = { ...card };
+      cardRepo.findOne.mockResolvedValue(underReviewCard);
       cardRepo.save.mockImplementation(c => Promise.resolve(c));
       const result = await service.activate('c1', 'card1');
       expect(result.status).toBe(CardStatus.ACTIVE);
-      expect(result.card_number).toMatch(/^\d{16}$/);
-      expect(result.issue_date).toBeInstanceOf(Date);
-      expect(result.exp_date).toBeInstanceOf(Date);
+      // card_number and dates were set at apply time — activate must not overwrite them
+      expect(result.card_number).toBe(underReviewCard.card_number);
+      expect(result.issue_date).toBe(underReviewCard.issue_date);
+      expect(result.exp_date).toBe(underReviewCard.exp_date);
     });
 
     it('throws BadRequestException if card is not under_review', async () => {

@@ -32,11 +32,18 @@ export class CardService {
   async apply(companyId: string, dto: CreateCardDto): Promise<Card> {
     await this.findCompany(companyId);
 
+    const today = new Date();
+    const expDate = new Date(today);
+    expDate.setFullYear(expDate.getFullYear() + 3);
+
     const card = this.cardRepo.create({
       max_credit: dto.max_credit,
       current_credit: dto.max_credit,
       company_id: companyId,
       status: CardStatus.UNDER_REVIEW,
+      card_number: this.generateCardNumber(),
+      issue_date: today,
+      exp_date: expDate,
     });
     return this.cardRepo.save(card);
   }
@@ -84,13 +91,6 @@ export class CardService {
       throw new BadRequestException(`Card must be in under_review status to activate`);
     }
 
-    const today = new Date();
-    const expDate = new Date(today);
-    expDate.setFullYear(expDate.getFullYear() + 3);
-
-    card.card_number = this.generateCardNumber();
-    card.issue_date = today;
-    card.exp_date = expDate;
     card.status = CardStatus.ACTIVE;
 
     return this.cardRepo.save(card);
