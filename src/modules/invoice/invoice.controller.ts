@@ -1,12 +1,12 @@
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { InvoiceService } from './invoice.service';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { UpdateInvoiceStatusDto } from './dto/update-invoice-status.dto';
 import { QueryInvoiceDto } from './dto/query-invoice.dto';
 import { Invoice } from './entities/invoice.entity';
 
-// Company-scoped routes: GET /companies/:companyId/invoices, POST /companies/:companyId/invoices/:ocr/payments
+// Company-scoped routes: GET /companies/:companyId/invoices
 @ApiTags('invoices')
 @Controller('companies/:companyId/invoices')
 export class InvoiceController {
@@ -32,16 +32,6 @@ export class InvoiceController {
   @ApiResponse({ status: 200, type: Invoice })
   updateStatus(@Param('id') id: string, @Body() dto: UpdateInvoiceStatusDto) {
     return this.invoiceService.updateStatus(id, dto);
-  }
-
-  @Post(':ocr/payments')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Pay a Qred invoice — restores company credit limit' })
-  @ApiResponse({ status: 200, type: Invoice })
-  @ApiResponse({ status: 400, description: 'Invoice already paid or processing' })
-  @ApiResponse({ status: 404, description: 'Invoice not found' })
-  pay(@Param('companyId') companyId: string, @Param('ocr') ocr: string) {
-    return this.invoiceService.pay(companyId, ocr);
   }
 }
 

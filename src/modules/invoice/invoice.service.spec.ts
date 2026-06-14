@@ -1,10 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { getRepositoryToken, getDataSourceToken } from '@nestjs/typeorm';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { NotFoundException } from '@nestjs/common';
 import { InvoiceService } from './invoice.service';
 import { Invoice, InvoiceType } from './entities/invoice.entity';
 import { Company } from '../company/entities/company.entity';
-import { Card, CardStatus } from '../card/entities/card.entity';
 import { InvoiceStatus } from './dto/update-invoice-status.dto';
 
 const mockRepo = () => ({
@@ -22,28 +21,10 @@ const mockQueryBuilder = () => ({
   getMany: jest.fn(),
 });
 
-const makeQueryRunner = (invoice: Invoice, card?: Card) => ({
-  connect: jest.fn(),
-  startTransaction: jest.fn(),
-  commitTransaction: jest.fn(),
-  rollbackTransaction: jest.fn(),
-  release: jest.fn(),
-  manager: {
-    findOne: jest.fn().mockImplementation((entity) => {
-      // Return copies so tests don't mutate shared fixtures
-      if (entity === Invoice) return Promise.resolve(invoice ? { ...invoice } : null);
-      if (entity === Card) return Promise.resolve(card ? { ...card } : null);
-      return Promise.resolve(null);
-    }),
-    save: jest.fn().mockImplementation((_, obj) => Promise.resolve(obj)),
-  },
-});
-
 describe('InvoiceService', () => {
   let service: InvoiceService;
   let invoiceRepo: ReturnType<typeof mockRepo>;
   let companyRepo: ReturnType<typeof mockRepo>;
-  let dataSource: { createQueryRunner: jest.Mock };
 
   const company: Company = { id: 'c1', name: 'Acme AB', org_number: '5591234567' } as Company;
 
@@ -60,23 +41,12 @@ describe('InvoiceService', () => {
     from_org_number: '5560206220',
   } as Invoice;
 
-  const card: Card = {
-    id: 'card1',
-    max_credit: 50000,
-    current_credit: 35000,
-    status: CardStatus.ACTIVE,
-    company_id: 'c1',
-  } as Card;
-
   beforeEach(async () => {
-    dataSource = { createQueryRunner: jest.fn() };
-
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         InvoiceService,
         { provide: getRepositoryToken(Invoice), useFactory: mockRepo },
         { provide: getRepositoryToken(Company), useFactory: mockRepo },
-        { provide: getDataSourceToken(), useValue: dataSource },
       ],
     }).compile();
 
@@ -136,7 +106,6 @@ describe('InvoiceService', () => {
         org_number: '5591234567',
         from: 'Qred AB',
         from_org_number: '5560206220',
-        company_name: 'Acme AB',
       } as any);
       expect(result).toEqual(pendingInvoice);
       expect(companyRepo.findOne).toHaveBeenCalledWith({ where: { org_number: '5591234567' } });
@@ -152,50 +121,17 @@ describe('InvoiceService', () => {
     });
   });
 
-  describe('pay', () => {
-    it('pays a statement invoice without touching card', async () => {
-      const qr = makeQueryRunner(pendingInvoice, card);
-      dataSource.createQueryRunner.mockReturnValue(qr);
-
-      const result = await service.pay('c1', 'OCR001');
+  describe('updateStatus', () => {
+    it('updates invoice status', async () => {
+      invoiceRepo.findOne.mockResolvedValue({ ...pendingInvoice });
+      invoiceRepo.save.mockImplementation(inv => Promise.resolve(inv));
+      const result = await service.updateStatus('inv1', { status: InvoiceStatus.PAID });
       expect(result.status).toBe(InvoiceStatus.PAID);
-      // For statement type: card.save should NOT be called
-      const savedCalls = (qr.manager.save as jest.Mock).mock.calls;
-      const cardSaved = savedCalls.some(([entity]) => entity === Card);
-      expect(cardSaved).toBe(false);
     });
 
-    it('pays a fee invoice and restores card credit', async () => {
-      const feeInvoice = { ...pendingInvoice, type: InvoiceType.FEE };
-      const qr = makeQueryRunner(feeInvoice, card);
-      dataSource.createQueryRunner.mockReturnValue(qr);
-
-      await service.pay('c1', 'OCR001');
-      const savedCalls = (qr.manager.save as jest.Mock).mock.calls;
-      const cardSaved = savedCalls.some(([entity]) => entity === Card);
-      expect(cardSaved).toBe(true);
-    });
-
-    it('throws BadRequestException if invoice already paid', async () => {
-      const paidInvoice = { ...pendingInvoice, status: InvoiceStatus.PAID };
-      const qr = makeQueryRunner(paidInvoice);
-      dataSource.createQueryRunner.mockReturnValue(qr);
-      await expect(service.pay('c1', 'OCR001')).rejects.toThrow(BadRequestException);
-    });
-
-    it('throws NotFoundException for unknown OCR', async () => {
-      const qr = makeQueryRunner(null as any);
-      qr.manager.findOne.mockResolvedValue(null);
-      dataSource.createQueryRunner.mockReturnValue(qr);
-      await expect(service.pay('c1', 'BADOCR')).rejects.toThrow(NotFoundException);
-    });
-
-    it('rolls back on error', async () => {
-      const qr = makeQueryRunner(null as any);
-      qr.manager.findOne.mockRejectedValue(new Error('DB error'));
-      dataSource.createQueryRunner.mockReturnValue(qr);
-      await expect(service.pay('c1', 'OCR001')).rejects.toThrow();
-      expect(qr.rollbackTransaction).toHaveBeenCalled();
+    it('throws NotFoundException when invoice not found', async () => {
+      invoiceRepo.findOne.mockResolvedValue(null);
+      await expect(service.updateStatus('bad', { status: InvoiceStatus.PAID })).rejects.toThrow(NotFoundException);
     });
   });
 });
