@@ -73,14 +73,23 @@ describe('InvoiceService', () => {
   });
 
   describe('findOne', () => {
-    it('returns invoice when found', async () => {
+    it('returns invoice when found and belongs to company', async () => {
       invoiceRepo.findOne.mockResolvedValue(pendingInvoice);
-      expect(await service.findOne('inv1')).toEqual(pendingInvoice);
+      expect(await service.findOne('c1', 'inv1')).toEqual(pendingInvoice);
+      expect(invoiceRepo.findOne).toHaveBeenCalledWith({
+        where: { id: 'inv1', company_id: 'c1' },
+        relations: ['transaction'],
+      });
     });
 
-    it('throws NotFoundException when not found', async () => {
+    it('throws NotFoundException when invoice belongs to a different company', async () => {
       invoiceRepo.findOne.mockResolvedValue(null);
-      await expect(service.findOne('bad')).rejects.toThrow(NotFoundException);
+      await expect(service.findOne('other-company', 'inv1')).rejects.toThrow(NotFoundException);
+    });
+
+    it('throws NotFoundException when invoice does not exist', async () => {
+      invoiceRepo.findOne.mockResolvedValue(null);
+      await expect(service.findOne('c1', 'bad')).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -116,13 +125,18 @@ describe('InvoiceService', () => {
     it('updates invoice status', async () => {
       invoiceRepo.findOne.mockResolvedValue({ ...pendingInvoice });
       invoiceRepo.save.mockImplementation(inv => Promise.resolve(inv));
-      const result = await service.updateStatus('inv1', { status: InvoiceStatus.PAID });
+      const result = await service.updateStatus('c1', 'inv1', { status: InvoiceStatus.PAID });
       expect(result.status).toBe(InvoiceStatus.PAID);
+    });
+
+    it('throws NotFoundException when invoice belongs to a different company', async () => {
+      invoiceRepo.findOne.mockResolvedValue(null);
+      await expect(service.updateStatus('other-company', 'inv1', { status: InvoiceStatus.PAID })).rejects.toThrow(NotFoundException);
     });
 
     it('throws NotFoundException when invoice not found', async () => {
       invoiceRepo.findOne.mockResolvedValue(null);
-      await expect(service.updateStatus('bad', { status: InvoiceStatus.PAID })).rejects.toThrow(NotFoundException);
+      await expect(service.updateStatus('c1', 'bad', { status: InvoiceStatus.PAID })).rejects.toThrow(NotFoundException);
     });
   });
 });

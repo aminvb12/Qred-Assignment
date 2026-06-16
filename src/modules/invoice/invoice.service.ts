@@ -29,9 +29,9 @@ export class InvoiceService {
     return qb.orderBy('invoice.due_date', 'DESC').getMany();
   }
 
-  async findOne(id: string): Promise<Invoice> {
+  async findOne(companyId: string, id: string): Promise<Invoice> {
     const invoice = await this.invoiceRepo.findOne({
-      where: { id },
+      where: { id, company_id: companyId },
       relations: ['transaction'],
     });
     if (!invoice) throw new NotFoundException(`Invoice ${id} not found`);
@@ -46,8 +46,8 @@ export class InvoiceService {
     return this.invoiceRepo.save(invoice);
   }
 
-  async updateStatus(id: string, dto: UpdateInvoiceStatusDto): Promise<Invoice> {
-    const invoice = await this.findOne(id);
+  async updateStatus(companyId: string, id: string, dto: UpdateInvoiceStatusDto): Promise<Invoice> {
+    const invoice = await this.findOne(companyId, id);
     invoice.status = dto.status;
     return this.invoiceRepo.save(invoice);
   }

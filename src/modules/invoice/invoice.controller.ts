@@ -10,7 +10,7 @@ import { Invoice } from './entities/invoice.entity';
 @ApiTags('invoices')
 @Controller('companies/:companyId/invoices')
 export class InvoiceController {
-  constructor(private readonly invoiceService: InvoiceService) {}
+  constructor(private readonly invoiceService: InvoiceService) { }
 
   @Get()
   @ApiOperation({ summary: 'List invoices for a company' })
@@ -20,18 +20,18 @@ export class InvoiceController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get invoice by ID' })
+  @ApiOperation({ summary: 'Get invoice by company id and invoice ID' })
   @ApiResponse({ status: 200, type: Invoice })
   @ApiResponse({ status: 404, description: 'Invoice not found' })
-  findOne(@Param('id') id: string) {
-    return this.invoiceService.findOne(id);
+  findOne(@Param('companyId') companyId: string, @Param('id') id: string) {
+    return this.invoiceService.findOne(companyId, id);
   }
 
   @Patch(':id/status')
-  @ApiOperation({ summary: 'Update invoice status' })
+  @ApiOperation({ summary: 'Update invoice status by company id and invoice id' })
   @ApiResponse({ status: 200, type: Invoice })
-  updateStatus(@Param('id') id: string, @Body() dto: UpdateInvoiceStatusDto) {
-    return this.invoiceService.updateStatus(id, dto);
+  updateStatus(@Param('companyId') companyId: string, @Param('id') id: string, @Body() dto: UpdateInvoiceStatusDto) {
+    return this.invoiceService.updateStatus(companyId, id, dto);
   }
 }
 
@@ -39,7 +39,7 @@ export class InvoiceController {
 @ApiTags('invoices')
 @Controller('invoices')
 export class InvoiceAdminController {
-  constructor(private readonly invoiceService: InvoiceService) {}
+  constructor(private readonly invoiceService: InvoiceService) { }
 
   @Post()
   @ApiOperation({ summary: 'Create invoice (Qred → company, identified by org_number)' })
