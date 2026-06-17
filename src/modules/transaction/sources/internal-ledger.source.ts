@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource, In } from 'typeorm';
+import { DataSource } from 'typeorm';
 import { ITransactionSource } from './transaction-source.interface';
 import { Transaction } from '../entities/transaction.entity';
 import { CreateTransactionDto } from '../dto/create-transaction.dto';
@@ -17,21 +17,11 @@ export class InternalLedgerSource implements ITransactionSource {
   ) { }
 
   async getTransactions(companyId: string, cardId?: string): Promise<Transaction[]> {
-    const invoices = await this.dataSource.getRepository(Invoice).find({
-      where: { company_id: companyId },
-      select: ['ocr_number'],
-    });
-
-    if (invoices.length === 0) return [];
-
-    const ocrNumbers = invoices.map((i) => i.ocr_number);
-
-    const where: Record<string, unknown> = { ocr_number: In(ocrNumbers) };
+    const where: Record<string, unknown> = { company_id: companyId };
     if (cardId) where.card_id = cardId;
 
     return this.dataSource.getRepository(Transaction).find({
       where,
-      relations: ['card'],
       order: { date: 'DESC' },
     });
   }
@@ -87,6 +77,7 @@ export class InternalLedgerSource implements ITransactionSource {
         amount: dto.amount,
         date: now,
         paid_date: now,
+        company_id: company.id,
         card_id: card.id,
       });
       const saved = await queryRunner.manager.save(Transaction, transaction);

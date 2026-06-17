@@ -25,6 +25,10 @@ export class Transaction {
   @Column({ type: 'date', nullable: true })
   paid_date: Date;
 
+  @ApiProperty({ example: 'uuid' })
+  @Column()
+  company_id: string;
+
   @ApiPropertyOptional({ example: 'uuid' })
   @Column({ nullable: true })
   card_id: string | null;
