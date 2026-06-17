@@ -20,7 +20,7 @@ export class InternalLedgerSource implements ITransactionSource {
     const qb = this.dataSource
       .getRepository(Transaction)
       .createQueryBuilder('t')
-      .innerJoin('t.invoice', 'i')
+      .innerJoin(Invoice, 'i', 'i.ocr_number = t.ocr_number')
       .leftJoinAndSelect('t.card', 'card')
       .where('i.company_id = :companyId', { companyId });
 
