@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { DataSource, In } from 'typeorm';
 import { ITransactionSource } from './transaction-source.interface';
 import { Transaction } from '../entities/transaction.entity';
 import { CreateTransactionDto } from '../dto/create-transaction.dto';
@@ -17,18 +17,23 @@ export class InternalLedgerSource implements ITransactionSource {
   ) { }
 
   async getTransactions(companyId: string, cardId?: string): Promise<Transaction[]> {
-    const qb = this.dataSource
-      .getRepository(Transaction)
-      .createQueryBuilder('t')
-      .innerJoin(Invoice, 'i', 'i.ocr_number = t.ocr_number')
-      .leftJoinAndSelect('t.card', 'card')
-      .where('i.company_id = :companyId', { companyId });
+    const invoices = await this.dataSource.getRepository(Invoice).find({
+      where: { company_id: companyId },
+      select: ['ocr_number'],
+    });
 
-    if (cardId) {
-      qb.andWhere('t.card_id = :cardId', { cardId });
-    }
+    if (invoices.length === 0) return [];
 
-    return qb.orderBy('t.date', 'DESC').getMany();
+    const ocrNumbers = invoices.map((i) => i.ocr_number);
+
+    const where: Record<string, unknown> = { ocr_number: In(ocrNumbers) };
+    if (cardId) where.card_id = cardId;
+
+    return this.dataSource.getRepository(Transaction).find({
+      where,
+      relations: ['card'],
+      order: { date: 'DESC' },
+    });
   }
 
   async pay(dto: CreateTransactionDto, company: Company): Promise<Transaction> {
@@ -44,8 +49,12 @@ export class InternalLedgerSource implements ITransactionSource {
       });
       if (!card) throw new NotFoundException(`Card not found`);
       if (card.status !== CardStatus.ACTIVE) throw new BadRequestException(`Card is ${card.status}`);
-      if (new Date(card.exp_date) < new Date()) throw new BadRequestException(`Card is expired`);
-      if (card.exp_date.toString() !== dto.exp_date) throw new BadRequestException(`Card expiry mismatch`);
+      // Normalize: TypeORM returns `date` columns as Date objects or 'YYYY-MM-DD' strings
+      const cardExpStr = card.exp_date instanceof Date
+        ? card.exp_date.toISOString().split('T')[0]
+        : String(card.exp_date);
+      if (new Date(cardExpStr) < new Date()) throw new BadRequestException(`Card is expired`);
+      if (cardExpStr !== dto.exp_date) throw new BadRequestException(`Card expiry mismatch`);
       if (Number(card.current_credit) < dto.amount) throw new BadRequestException(`Insufficient credit`);
 
       // ── Deduct credit ──────────────────────────────────────────────────────
