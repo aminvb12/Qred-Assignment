@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Exclude } from 'class-transformer';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { UserCompany } from '../../company/entities/user-company.entity';
 
@@ -19,6 +20,10 @@ export class User {
   @ApiProperty({ example: 'anna@example.com' })
   @Column()
   email: string;
+
+  @Exclude()
+  @Column()
+  password: string;
 
   @ApiProperty({ example: '199001011234' })
   @Column({ unique: true })

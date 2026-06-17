@@ -8,10 +8,10 @@ http:
   url: "{{base-url}}/companies/:companyId/cards/:cardId"
   params:
     - name: companyId
-      value: dc5c6e18-750c-4093-a635-297bfb343359
+      value: 6392a45c-6644-4173-9c51-460ab9c875d0
       type: path
     - name: cardId
-      value: 9341cae1-caab-449c-9b8e-c9390acb31ed
+      value: 4a06f34d-3fb2-4153-bd2c-c5a3322a1d46
       type: path
   body:
     type: json

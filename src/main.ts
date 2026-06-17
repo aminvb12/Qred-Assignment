@@ -1,5 +1,5 @@
-import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { NestFactory, Reflector } from '@nestjs/core';
+import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { QueryFailedFilter } from './common/filters/query-failed.filter';
@@ -16,6 +16,7 @@ async function bootstrap() {
   );
 
   app.useGlobalFilters(new QueryFailedFilter());
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   app.setGlobalPrefix('api');
   app.enableCors();
 
@@ -24,6 +25,7 @@ async function bootstrap() {
     .setTitle('Qred Assignment API')
     .setDescription('REST API for managing users, companies, cards, invoices and transactions')
     .setVersion('1.0')
+    .addTag('auth')
     .addTag('users')
     .addTag('companies')
     .addTag('cards')

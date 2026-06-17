@@ -1,20 +1,22 @@
 info:
-  name: "Apply for card "
+  name: Make payment
   type: http
-  seq: 5
+  seq: 10
 
 http:
   method: POST
-  url: "{{base-url}}/companies/:companyId/cards"
+  url: "{{base-url}}/companies/:companyId/transactions"
   params:
     - name: companyId
-      value: 6392a45c-6644-4173-9c51-460ab9c875d0
+      value: dc5c6e18-750c-4093-a635-297bfb343359
       type: path
   body:
     type: json
     data: |-
       {
-        "max_credit": 50000
+        "card_number": "4539715388542420",
+        "exp_date": "2029-06-17",
+        "amount": 2000
       }
   auth: inherit
 

@@ -19,7 +19,7 @@ export class UserService {
 
     @InjectRepository(UserCompany)
     private readonly userCompanyRepo: Repository<UserCompany>,
-  ) {}
+  ) { }
 
   async findAll(): Promise<User[]> {
     return this.userRepo.find();
@@ -40,6 +40,10 @@ export class UserService {
     const user = await this.findOne(id);
     Object.assign(user, dto);
     return this.userRepo.save(user);
+  }
+
+  async findByEmail(email: string): Promise<User | null> {
+    return this.userRepo.findOne({ where: { email } });
   }
 
   async remove(id: string): Promise<void> {

@@ -14,9 +14,9 @@ http:
     type: json
     data: |-
       {
-        "name": "Swish AB",
-        "logo": "https://play-lh.googleusercontent.com/NiU9oukn_XtdpjyODVezYIxeZ3Obs04bH9VZa0MAhZN4s9x5mG9O1lO_ZF37CDKck_8K",
-        "org_number": "5590081200"
+        "name": "Volvo",
+        "logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSlpFNtxjA9i77i-1G4cH1Gf9AC7MRDCCVh0usMQ2r05w&s=10",
+        "org_number": "559008120011"
       }
   auth: inherit
 
