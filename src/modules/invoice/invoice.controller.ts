@@ -1,16 +1,22 @@
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, Query } from '@nestjs/common';
 import { InvoiceService } from './invoice.service';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { UpdateInvoiceStatusDto } from './dto/update-invoice-status.dto';
 import { QueryInvoiceDto } from './dto/query-invoice.dto';
 import { Invoice } from './entities/invoice.entity';
+import { TransactionService } from '../transaction/transaction.service';
+import { PayInvoiceDto } from '../transaction/dto/pay-invoice.dto';
+import { Transaction } from '../transaction/entities/transaction.entity';
 
 // Company-scoped routes: GET /companies/:companyId/invoices
 @ApiTags('invoices')
 @Controller('companies/:companyId/invoices')
 export class InvoiceController {
-  constructor(private readonly invoiceService: InvoiceService) { }
+  constructor(
+    private readonly invoiceService: InvoiceService,
+    private readonly transactionService: TransactionService,
+  ) { }
 
   @Get()
   @ApiOperation({ summary: 'List invoices for a company' })
@@ -32,6 +38,20 @@ export class InvoiceController {
   @ApiResponse({ status: 200, type: Invoice })
   updateStatus(@Param('companyId') companyId: string, @Param('id') id: string, @Body() dto: UpdateInvoiceStatusDto) {
     return this.invoiceService.updateStatus(companyId, id, dto);
+  }
+
+  @Post(':id/payments')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Pay an invoice — marks it PAID, restores card credit, records transaction' })
+  @ApiResponse({ status: 201, type: Transaction })
+  @ApiResponse({ status: 400, description: 'Amount mismatch or invoice already paid' })
+  @ApiResponse({ status: 404, description: 'Invoice not found' })
+  payInvoice(
+    @Param('companyId') companyId: string,
+    @Param('id') id: string,
+    @Body() dto: PayInvoiceDto,
+  ): Promise<Transaction> {
+    return this.transactionService.payInvoice(id, dto, companyId);
   }
 }
 

@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { TransactionSourceFactory } from './sources/transaction-source.factory';
 import { Transaction } from './entities/transaction.entity';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
+import { PayInvoiceDto } from './dto/pay-invoice.dto';
 import { Company } from '../company/entities/company.entity';
 
 @Injectable()
@@ -25,6 +26,11 @@ export class TransactionService {
   async pay(dto: CreateTransactionDto, companyId: string): Promise<Transaction> {
     const company = await this.findCompany(companyId);
     return this.factory.forCompany(company).pay(dto, company);
+  }
+
+  async payInvoice(invoiceId: string, dto: PayInvoiceDto, companyId: string): Promise<Transaction> {
+    const company = await this.findCompany(companyId);
+    return this.factory.forCompany(company).payInvoice(invoiceId, dto, company);
   }
 
   private async findCompany(companyId: string): Promise<Company> {

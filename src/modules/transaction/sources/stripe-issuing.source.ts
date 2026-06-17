@@ -13,6 +13,8 @@ export class StripeIssuingSource implements ITransactionSource {
     throw new Error('Not implemented');
   }
 
+  async payInvoice(_invoiceId: string, _dto: any, _company: any): Promise<any> { throw new Error('Not implemented'); }
+
   async pay(_dto: CreateTransactionDto, _company: Company): Promise<Transaction> {
     // ...
     // Stripe Issuing handles authorization via webhooks — payments are not initiated here

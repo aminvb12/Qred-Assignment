@@ -20,5 +20,6 @@ import { Company } from '../company/entities/company.entity';
     AdyenSource,
     NetsSource,
   ],
+  exports: [TransactionService],
 })
 export class TransactionModule {}

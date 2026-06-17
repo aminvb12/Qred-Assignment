@@ -13,6 +13,8 @@ export class NetsSource implements ITransactionSource {
     throw new Error('Not implemented');
   }
 
+  async payInvoice(_invoiceId: string, _dto: any, _company: any): Promise<any> { throw new Error('Not implemented'); }
+
   async pay(_dto: CreateTransactionDto, _company: Company): Promise<Transaction> {
     // ...
     // await netsClient.initiatePayment({ amount: _dto.amount, ... });

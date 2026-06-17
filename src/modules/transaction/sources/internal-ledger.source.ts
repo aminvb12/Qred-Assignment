@@ -4,6 +4,7 @@ import { DataSource, In } from 'typeorm';
 import { ITransactionSource } from './transaction-source.interface';
 import { Transaction } from '../entities/transaction.entity';
 import { CreateTransactionDto } from '../dto/create-transaction.dto';
+import { PayInvoiceDto } from '../dto/pay-invoice.dto';
 import { Company } from '../../company/entities/company.entity';
 import { Invoice } from '../../invoice/entities/invoice.entity';
 import { Card, CardStatus } from '../../card/entities/card.entity';
@@ -34,6 +35,68 @@ export class InternalLedgerSource implements ITransactionSource {
       relations: ['card'],
       order: { date: 'DESC' },
     });
+  }
+
+  async payInvoice(invoiceId: string, dto: PayInvoiceDto, company: Company): Promise<Transaction> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      // ── Validate invoice ───────────────────────────────────────────────────
+      const invoice = await queryRunner.manager.findOne(Invoice, {
+        where: { id: invoiceId, company_id: company.id },
+        lock: { mode: 'pessimistic_write' },
+      });
+      if (!invoice) throw new NotFoundException(`Invoice ${invoiceId} not found`);
+      if (invoice.status === InvoiceStatus.PAID) throw new BadRequestException(`Invoice already paid`);
+      if (Number(invoice.amount) !== dto.amount) {
+        throw new BadRequestException(
+          `Amount mismatch: invoice is ${invoice.amount}, got ${dto.amount}`,
+        );
+      }
+
+      // ── Restore credit to the card that was charged ────────────────────────
+      const original = await queryRunner.manager.findOne(Transaction, {
+        where: { ocr_number: invoice.ocr_number },
+      });
+      if (original?.card_id) {
+        const card = await queryRunner.manager.findOne(Card, {
+          where: { id: original.card_id },
+          lock: { mode: 'pessimistic_write' },
+        });
+        if (card) {
+          card.current_credit = Number(card.current_credit) + dto.amount;
+          if (Number(card.current_credit) > Number(card.max_credit)) {
+            card.current_credit = card.max_credit;
+          }
+          await queryRunner.manager.save(Card, card);
+        }
+      }
+
+      // ── Mark invoice as paid ───────────────────────────────────────────────
+      invoice.status = InvoiceStatus.PAID;
+      await queryRunner.manager.save(Invoice, invoice);
+
+      // ── Record transaction ─────────────────────────────────────────────────
+      const now = new Date();
+      const transaction = queryRunner.manager.create(Transaction, {
+        ocr_number: `PAY-${invoice.ocr_number}`,
+        amount: dto.amount,
+        date: now,
+        paid_date: now,
+        company_id: company.id,
+      });
+      const saved = await queryRunner.manager.save(Transaction, transaction);
+
+      await queryRunner.commitTransaction();
+      return saved;
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw err;
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async pay(dto: CreateTransactionDto, company: Company): Promise<Transaction> {
