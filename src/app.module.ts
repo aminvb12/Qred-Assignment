@@ -27,6 +27,7 @@ import { TransactionModule } from './modules/transaction/transaction.module';
         migrations: [__dirname + '/migrations/*{.ts,.js}'],
         synchronize: false,
         logging: config.get<string>('NODE_ENV') === 'development',
+        //poolSize: config.get<number>('DB_POOL_SIZE', 10),
         ssl: config.get<string>('NODE_ENV') === 'production'
           ? { rejectUnauthorized: false }
           : false,
@@ -39,4 +40,4 @@ import { TransactionModule } from './modules/transaction/transaction.module';
     TransactionModule,
   ],
 })
-export class AppModule {}
+export class AppModule { }
